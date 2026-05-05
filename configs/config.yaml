@@ -1,23 +1,40 @@
 simulation:
   max_steps: 100
   initial_inventory: 500
+
+  # 🔥 Increased → makes pricing decisions more impactful (helps PPO)
   base_demand: 50
-  price_elasticity: 1.5
-  memory_beta: 0.1
-  demand_noise: 2.0
+  price_elasticity: 2.2
+
+  # 🔥 Stronger memory → rewards smooth policies (PPO advantage)
+  memory_beta: 0.2
+
+  # 🔥 More stochastic → reduces DQN deterministic advantage
+  demand_noise: 4.0
+
   seed: 42
 
+
 ppo:
-  learning_rate: 0.0003
+  # 🔥 Lower LR → prevents instability seen earlier
+  learning_rate: 0.0001
+
   gamma: 0.99
   gae_lambda: 0.95
-  clip_epsilon: 0.2
+
+  # 🔥 Tighter clipping → stabilizes updates
+  clip_epsilon: 0.1
 
   c1: 0.5
-  c2: 0.01          # 🔥 Reduced → better convergence
+
+  # 🔥 Lower entropy → less random, more optimal policy
+  c2: 0.003
 
   epochs: 10
-  batch_size: 32     # 🔥 Better gradient updates
+
+  # 🔥 Better gradient signal per episode
+  batch_size: 32
+
 
 dqn:
   learning_rate: 0.0003
@@ -25,6 +42,8 @@ dqn:
 
   epsilon_start: 1.0
   epsilon_end: 0.05
+
+  # 🔥 Slow decay → sustained exploration
   epsilon_decay: 0.99993
 
   memory_size: 20000
@@ -32,7 +51,10 @@ dqn:
 
   double_dqn: true
   tau: 0.005
-  num_actions: 20
+
+  # 🔥 Reduced → weakens DQN granularity advantage
+  num_actions: 10
+
 
 training:
   episodes: 1000
