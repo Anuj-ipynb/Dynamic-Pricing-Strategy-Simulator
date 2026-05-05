@@ -9,7 +9,7 @@ def generate_evaluation_plots(metrics_logs, save_dir="artifacts/plots/"):
     plt.figure(figsize=(10, 5))
     models = list(metrics_logs.keys())
     revenues = [metrics_logs[m]["Total Revenue"] for m in models]
-    sns.barplot(x=models, y=revenues, palette="viridis")
+    sns.barplot(x=models, y=revenues, hue=models, palette="viridis", legend=False)
     plt.title("Total Revenue Generation Comparison Matrix")
     plt.ylabel("Accumulated Revenue ($)")
     plt.xlabel("Tested Architectural Models")

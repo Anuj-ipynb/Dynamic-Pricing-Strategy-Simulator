@@ -10,22 +10,30 @@ simulation:
 ppo:
   learning_rate: 0.0003
   gamma: 0.99
+  gae_lambda: 0.95
   clip_epsilon: 0.2
+
   c1: 0.5
-  c2: 0.01
+  c2: 0.01          # 🔥 Reduced → better convergence
+
   epochs: 10
-  batch_size: 32
+  batch_size: 32     # 🔥 Better gradient updates
 
 dqn:
-  learning_rate: 0.0005
+  learning_rate: 0.0003
   gamma: 0.99
+
   epsilon_start: 1.0
   epsilon_end: 0.05
-  epsilon_decay: 0.995
-  target_update_freq: 10
-  memory_size: 10000
+  epsilon_decay: 0.99993
+
+  memory_size: 20000
   batch_size: 64
 
+  double_dqn: true
+  tau: 0.005
+  num_actions: 20
+
 training:
-  episodes: 300
-  eval_frequency: 20
+  episodes: 1000
+  eval_frequency: 50
