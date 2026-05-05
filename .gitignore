@@ -1,0 +1,41 @@
+# ==============================================================================
+# Python / Backend / MLOps
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual Environment (Matches your terminal 'venv')
+venv/
+.venv/
+
+# Project Artifacts & Local Run Outputs (Large binary files/local metrics)
+artifacts/models/*.pt
+artifacts/plots/*.png
+artifacts/evaluation_summary.json
+experiments/*.csv
+
+# ==============================================================================
+# Node / React Frontend (Vite + TypeScript)
+# ==============================================================================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+
+# Local environment variables
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# ==============================================================================
+# IDEs, Editors & OS General
+# ==============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

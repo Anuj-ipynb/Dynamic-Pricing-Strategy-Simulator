@@ -1,0 +1,11 @@
+torch
+fastapi
+uvicorn
+streamlit
+numpy
+pandas
+pyyaml
+matplotlib
+seaborn
+pydantic
+requests
