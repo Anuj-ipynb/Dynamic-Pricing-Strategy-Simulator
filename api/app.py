@@ -1,174 +1,598 @@
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import json
+import glob
+from datetime import datetime
+
+sys.path.append(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    )
+)
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 import numpy as np
-import json
+import pandas as pd
 
 from agents.ppo_agent import PPOAgent
 from agents.dqn_agent import DQNAgent
 from env.pricing_env import DynamicPricingEnv
 
 
-# ---------------------------
-# FastAPI App
-# ---------------------------
+# =========================================================
+# FASTAPI APP
+# =========================================================
 app = FastAPI(
     title="Dynamic Pricing Strategy Core Service Engine",
-    description="RL-powered pricing API",
-    version="1.0.0"
+    description=(
+        "Production-grade RL analytics and pricing API "
+        "for dynamic pricing optimization"
+    ),
+    version="2.0.0"
 )
 
-# ---------------------------
-# CORS (REQUIRED FOR FRONTEND)
-# ---------------------------
+# =========================================================
+# CORS
+# =========================================================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # dev only
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# ---------------------------
-# Load Models SAFELY
-# ---------------------------
+# =========================================================
+# LOAD MODELS
+# =========================================================
 ppo_model = PPOAgent()
 dqn_model = DQNAgent()
 
 PPO_LOADED = False
 DQN_LOADED = False
 
-if os.path.exists("artifacts/models/ppo_model.pt"):
+PPO_MODEL_PATH = "artifacts/models/ppo_model.pt"
+DQN_MODEL_PATH = "artifacts/models/dqn_model.pt"
+
+if os.path.exists(PPO_MODEL_PATH):
+
     try:
-        ppo_model.load("artifacts/models/ppo_model.pt")
+
+        ppo_model.load(PPO_MODEL_PATH)
+
         PPO_LOADED = True
-        print("✅ PPO model loaded")
-    except Exception as e:
-        print(f"❌ PPO load failed: {e}")
 
-if os.path.exists("artifacts/models/dqn_model.pt"):
+        print("✓ PPO model loaded")
+
+    except Exception as e:
+
+        print(f"✗ PPO loading failed: {e}")
+
+if os.path.exists(DQN_MODEL_PATH):
+
     try:
-        dqn_model.load("artifacts/models/dqn_model.pt")
+
+        dqn_model.load(DQN_MODEL_PATH)
+
         DQN_LOADED = True
-        print("✅ DQN model loaded")
+
+        print("✓ DQN model loaded")
+
     except Exception as e:
-        print(f"⚠️ DQN load skipped (incompatible): {e}")
+
+        print(f"✗ DQN loading failed: {e}")
 
 
-# ---------------------------
-# Schemas
-# ---------------------------
+# =========================================================
+# REQUEST SCHEMAS
+# =========================================================
 class PriceRequestSchema(BaseModel):
+
     state: list
     model: str
 
 
 class SimulationRequestSchema(BaseModel):
+
     steps: int
     model: str
 
 
-# ---------------------------
-# Price Endpoint
-# ---------------------------
+# =========================================================
+# HELPERS
+# =========================================================
+def latest_file(directory, pattern):
+
+    files = glob.glob(
+        os.path.join(directory, pattern)
+    )
+
+    if not files:
+        return None
+
+    return max(files, key=os.path.getctime)
+
+
+# =========================================================
+# ROOT
+# =========================================================
+@app.get("/")
+def root():
+
+    return {
+        "service": "Dynamic Pricing RL Platform",
+        "status": "running",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+# =========================================================
+# HEALTH
+# =========================================================
+@app.get("/health")
+def health_check():
+
+    return {
+
+        "status": "healthy",
+
+        "models": {
+
+            "ppo_loaded": PPO_LOADED,
+            "dqn_loaded": DQN_LOADED
+        },
+
+        "artifacts": {
+
+            "ppo_exists": os.path.exists(
+                PPO_MODEL_PATH
+            ),
+
+            "dqn_exists": os.path.exists(
+                DQN_MODEL_PATH
+            ),
+
+            "evaluation_exists": os.path.exists(
+                "artifacts/evaluation_summary.json"
+            )
+        },
+
+        "timestamp": datetime.now().isoformat()
+    }
+
+
+# =========================================================
+# PRICE INFERENCE
+# =========================================================
 @app.post("/price")
 def compute_price(payload: PriceRequestSchema):
 
     if len(payload.state) != 5:
+
         raise HTTPException(
             status_code=400,
-            detail="State must be length 5"
+            detail="State vector must have length 5"
         )
 
-    state = np.array(payload.state, dtype=np.float32)
+    state = np.array(
+        payload.state,
+        dtype=np.float32
+    )
 
     model_name = payload.model.lower()
 
+    # -----------------------------------------------------
+    # PPO
+    # -----------------------------------------------------
     if model_name == "ppo":
+
         if not PPO_LOADED:
-            raise HTTPException(status_code=500, detail="PPO model not loaded")
-        price, _, _ = ppo_model.select_action(state)
 
+            raise HTTPException(
+                status_code=500,
+                detail="PPO model not loaded"
+            )
+
+        action, _, _ = ppo_model.select_action(
+            state
+        )
+
+        action = float(
+            np.clip(action, 5.0, 100.0)
+        )
+
+        return {
+            "model": "PPO",
+            "price": action
+        }
+
+    # -----------------------------------------------------
+    # DQN
+    # -----------------------------------------------------
     elif model_name == "dqn":
+
         if not DQN_LOADED:
-            raise HTTPException(status_code=500, detail="DQN model not available")
-        price, _ = dqn_model.select_action(state, eval_mode=True)
 
+            raise HTTPException(
+                status_code=500,
+                detail="DQN model not loaded"
+            )
+
+        action, _ = dqn_model.select_action(
+            state,
+            eval_mode=True
+        )
+
+        return {
+            "model": "DQN",
+            "price": float(action)
+        }
+
+    # -----------------------------------------------------
+    # INVALID
+    # -----------------------------------------------------
     else:
-        raise HTTPException(status_code=400, detail="Invalid model")
 
-    return {"price": float(price)}
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid model requested"
+        )
 
 
-# ---------------------------
-# Simulation Endpoint
-# ---------------------------
+# =========================================================
+# LIVE SIMULATION
+# =========================================================
 @app.post("/simulate")
-def run_simulation(payload: SimulationRequestSchema):
+def run_simulation(
+    payload: SimulationRequestSchema
+):
 
     env = DynamicPricingEnv()
+
     state = env.reset()
 
-    prices = []
-    revenues = []
+    model_name = payload.model.lower()
+
+    pricing_trace = []
+    revenue_trace = []
+    inventory_trace = []
+    trust_trace = []
+
+    total_reward = 0.0
 
     done = False
     step = 0
 
-    model_name = payload.model.lower()
-
     while not done and step < payload.steps:
 
+        # -------------------------------------------------
+        # PPO
+        # -------------------------------------------------
         if model_name == "ppo":
+
             if not PPO_LOADED:
-                raise HTTPException(status_code=500, detail="PPO not loaded")
-            action, _, _ = ppo_model.select_action(state)
 
+                raise HTTPException(
+                    status_code=500,
+                    detail="PPO model unavailable"
+                )
+
+            action, _, _ = ppo_model.select_action(
+                state
+            )
+
+        # -------------------------------------------------
+        # DQN
+        # -------------------------------------------------
         elif model_name == "dqn":
+
             if not DQN_LOADED:
-                raise HTTPException(status_code=500, detail="DQN not available")
-            action, _ = dqn_model.select_action(state, eval_mode=True)
 
+                raise HTTPException(
+                    status_code=500,
+                    detail="DQN model unavailable"
+                )
+
+            action, _ = dqn_model.select_action(
+                state,
+                eval_mode=True
+            )
+
+        # -------------------------------------------------
+        # INVALID
+        # -------------------------------------------------
         else:
-            raise HTTPException(status_code=400, detail="Invalid model")
 
-        state, reward, done, info = env.step(action)
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid model"
+            )
 
-        prices.append(info["price"])
-        revenues.append(info["revenue"])
+        next_state, reward, done, info = env.step(
+            action
+        )
+
+        pricing_trace.append(
+            float(info["price"])
+        )
+
+        revenue_trace.append(
+            float(info["revenue"])
+        )
+
+        inventory_trace.append(
+            float(info["inventory"])
+        )
+
+        trust_trace.append(
+            float(info["trust"])
+        )
+
+        total_reward += reward
+
+        state = next_state
 
         step += 1
 
     return {
-        "prices": prices,
-        "total_revenue": float(sum(revenues)),
-        "steps_executed": step
+
+        "model": payload.model.upper(),
+
+        "steps_executed": step,
+
+        "total_reward": float(total_reward),
+
+        "total_revenue": float(
+            np.sum(revenue_trace)
+        ),
+
+        "avg_price": float(
+            np.mean(pricing_trace)
+        ),
+
+        "price_volatility": float(
+            np.std(pricing_trace)
+        ),
+
+        "final_inventory": float(
+            inventory_trace[-1]
+            if inventory_trace else 0.0
+        ),
+
+        "pricing_trace": pricing_trace,
+
+        "revenue_trace": revenue_trace,
+
+        "inventory_trace": inventory_trace,
+
+        "trust_trace": trust_trace
     }
 
 
-# ---------------------------
-# Metrics Endpoint
-# ---------------------------
+# =========================================================
+# GLOBAL METRICS
+# =========================================================
 @app.get("/metrics")
 def fetch_metrics():
 
-    path = "artifacts/evaluation_summary.json"
+    metrics_path = (
+        "artifacts/evaluation_summary.json"
+    )
 
-    if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="Run evaluation first")
+    if not os.path.exists(metrics_path):
 
-    with open(path, "r") as f:
-        return json.load(f)
+        raise HTTPException(
+            status_code=404,
+            detail="Evaluation results not found"
+        )
+
+    with open(metrics_path, "r") as f:
+
+        metrics = json.load(f)
+
+    return metrics
 
 
-# ---------------------------
-# Run (optional)
-# ---------------------------
+# =========================================================
+# TRAINING HISTORY
+# =========================================================
+@app.get("/training-history")
+def fetch_training_history():
+
+    history_file = latest_file(
+        "artifacts/history",
+        "*_training_history.json"
+    )
+
+    if history_file is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Training history not found"
+        )
+
+    with open(history_file, "r") as f:
+
+        history = json.load(f)
+
+    return history
+
+
+# =========================================================
+# MODEL METADATA
+# =========================================================
+@app.get("/model-info")
+def fetch_model_info():
+
+    metadata_file = latest_file(
+        "artifacts/metadata",
+        "*_metadata.json"
+    )
+
+    if metadata_file is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Metadata unavailable"
+        )
+
+    with open(metadata_file, "r") as f:
+
+        metadata = json.load(f)
+
+    return metadata
+
+
+# =========================================================
+# COMPARISON ANALYTICS
+# =========================================================
+@app.get("/compare")
+def compare_models():
+
+    metrics_path = (
+        "artifacts/evaluation_summary.json"
+    )
+
+    if not os.path.exists(metrics_path):
+
+        raise HTTPException(
+            status_code=404,
+            detail="Evaluation results unavailable"
+        )
+
+    with open(metrics_path, "r") as f:
+
+        metrics = json.load(f)
+
+    comparison = []
+
+    for model_name, values in metrics.items():
+
+        comparison.append({
+
+            "model": model_name,
+
+            "revenue": values.get(
+                "Total Revenue",
+                0.0
+            ),
+
+            "volatility": values.get(
+                "Price Volatility (StdDev)",
+                0.0
+            ),
+
+            "inventory_utilization": values.get(
+                "Inventory Utilization (%)",
+                0.0
+            ),
+
+            "demand_fulfillment": values.get(
+                "Demand Fulfillment Rate (%)",
+                0.0
+            ),
+
+            "policy_smoothness": values.get(
+                "Policy Smoothness",
+                0.0
+            )
+        })
+
+    comparison = sorted(
+        comparison,
+        key=lambda x: x["revenue"],
+        reverse=True
+    )
+
+    return {
+        "rankings": comparison
+    }
+
+
+# =========================================================
+# EXPERIMENT LOGS
+# =========================================================
+@app.get("/experiment-log")
+def fetch_experiment_logs():
+
+    csv_path = "experiments/results.csv"
+
+    if not os.path.exists(csv_path):
+
+        raise HTTPException(
+            status_code=404,
+            detail="Experiment log unavailable"
+        )
+
+    df = pd.read_csv(csv_path)
+
+    latest_rows = (
+        df.sort_values("episode")
+        .tail(50)
+    )
+
+    return latest_rows.to_dict(
+        orient="records"
+    )
+
+
+# =========================================================
+# SYSTEM TELEMETRY
+# =========================================================
+@app.get("/telemetry")
+def telemetry():
+
+    telemetry_payload = {
+
+        "system_status": "operational",
+
+        "models": {
+
+            "ppo": {
+                "loaded": PPO_LOADED
+            },
+
+            "dqn": {
+                "loaded": DQN_LOADED
+            }
+        },
+
+        "artifacts": {
+
+            "models_directory": os.path.exists(
+                "artifacts/models"
+            ),
+
+            "plots_directory": os.path.exists(
+                "artifacts/plots"
+            ),
+
+            "history_directory": os.path.exists(
+                "artifacts/history"
+            )
+        },
+
+        "timestamp": datetime.now().isoformat()
+    }
+
+    return telemetry_payload
+
+
+# =========================================================
+# MAIN
+# =========================================================
 if __name__ == "__main__":
+
     import uvicorn
-    uvicorn.run("api.app:app", host="0.0.0.0", port=8000, reload=True)
+
+    uvicorn.run(
+        "api.app:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True
+    )

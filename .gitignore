@@ -1,41 +1,115 @@
-# ==============================================================================
-# Python / Backend / MLOps
-# ==============================================================================
+# =========================================================
+# PYTHON
+# =========================================================
 __pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
 
-# Virtual Environment (Matches your terminal 'venv')
+# Virtual Environments
 venv/
 .venv/
+env/
+ENV/
 
-# Project Artifacts & Local Run Outputs (Large binary files/local metrics)
-artifacts/models/*.pt
-artifacts/plots/*.png
-artifacts/evaluation_summary.json
-experiments/*.csv
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
 
-# ==============================================================================
-# Node / React Frontend (Vite + TypeScript)
-# ==============================================================================
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
-frontend/.eslintcache
+# =========================================================
+# JUPYTER
+# =========================================================
+.ipynb_checkpoints/
 
-# Local environment variables
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-
-# ==============================================================================
-# IDEs, Editors & OS General
-# ==============================================================================
+# =========================================================
+# IDE / EDITOR
+# =========================================================
 .vscode/
 .idea/
 *.swp
 *.swo
+
+# =========================================================
+# OS FILES
+# =========================================================
 .DS_Store
 Thumbs.db
+
+# =========================================================
+# LOGS
+# =========================================================
+*.log
+
+# =========================================================
+# ENVIRONMENT VARIABLES
+# =========================================================
+.env
+.env.*
+
+# =========================================================
+# NODE / FRONTEND
+# =========================================================
+frontend/node_modules/
+frontend/dist/
+
+# Vite cache
+frontend/.vite/
+
+# =========================================================
+# ARTIFACTS
+# =========================================================
+
+# Keep directory structure
+artifacts/*
+!artifacts/.gitkeep
+
+# Keep subdirectories tracked
+!artifacts/models/
+!artifacts/plots/
+!artifacts/history/
+!artifacts/metadata/
+
+# Ignore generated contents
+artifacts/models/*
+artifacts/plots/*
+artifacts/history/*
+artifacts/metadata/*
+
+# Keep folders alive
+!artifacts/models/.gitkeep
+!artifacts/plots/.gitkeep
+!artifacts/history/.gitkeep
+!artifacts/metadata/.gitkeep
+
+# =========================================================
+# EXPERIMENT OUTPUTS
+# =========================================================
+experiments/results.csv
+
+# =========================================================
+# TRAINING OUTPUTS
+# =========================================================
+*.pt
+*.pth
+
+# =========================================================
+# GENERATED MEDIA
+# =========================================================
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+
+# =========================================================
+# CACHE
+# =========================================================
+.cache/
+.pytest_cache/
+
+# =========================================================
+# MISC
+# =========================================================
+*.tmp
+*.temp

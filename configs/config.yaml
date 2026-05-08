@@ -1,48 +1,87 @@
 simulation:
   max_steps: 100
+
   initial_inventory: 500
 
-  base_demand: 50
-  price_elasticity: 1.4
+  # =====================================================
+  # DEMAND SYSTEM
+  # =====================================================
+  base_demand: 55
 
-  memory_beta: 0.2
-  demand_noise: 2.5
+  # MUCH STRONGER ELASTICITY
+  # prevents trivial max-price exploitation
+  price_elasticity: 3.5
 
+  # =====================================================
+  # CUSTOMER MEMORY
+  # =====================================================
+  # stronger long-term penalty
+  memory_beta: 0.65
+
+  # =====================================================
+  # STOCHASTICITY
+  # =====================================================
+  demand_noise: 2.0
+
+  # =====================================================
+  # REPRODUCIBILITY
+  # =====================================================
   seed: 42
 
 
+# =========================================================
+# PPO
+# =========================================================
 ppo:
+
   learning_rate: 0.0001
+
   gamma: 0.99
+
   gae_lambda: 0.95
 
-  clip_epsilon: 0.1
+  clip_epsilon: 0.15
 
   c1: 0.5
-  c2: 0.003
+
+  c2: 0.001
 
   epochs: 10
+
   batch_size: 32
 
 
+# =========================================================
+# DQN
+# =========================================================
 dqn:
+
   learning_rate: 0.0003
+
   gamma: 0.99
 
   epsilon_start: 1.0
+
   epsilon_end: 0.05
 
   epsilon_decay: 0.99993
 
   memory_size: 20000
+
   batch_size: 64
 
   double_dqn: true
+
   tau: 0.005
 
   num_actions: 20
 
 
+# =========================================================
+# TRAINING
+# =========================================================
 training:
+
   episodes: 1000
+
   eval_frequency: 50

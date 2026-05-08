@@ -1,136 +1,307 @@
-
 # Dynamic Pricing Strategy Simulator Using Reinforcement Learning
 
-A self-contained production framework for optimizing continuous and discrete dynamic pricing models using standard deep-policy reinforcement learning methods. This platform simulates a complex, non-stationary marketplace with customer memory constraints, evaluating RL performance against five traditional mathematical and rule-based baselines.
+A production-oriented reinforcement learning framework for optimizing dynamic pricing decisions in non-stationary marketplace environments. The platform compares deep RL approaches against multiple analytical and rule-based baselines while exposing full telemetry, experiment tracking, monitoring APIs, and operational analytics dashboards.
 
 ---
 
-## 🎯 Project Objective & Environment Design
+# Core Features
 
-Traditional pricing models assume static, deterministic demand curves. This simulator provides a high-fidelity environment where traditional baselines struggle and Reinforcement Learning (RL) has a distinct competitive advantage due to three main factors:
-
-1. **Customer Price Memory**: Rapid, aggressive price spikes trigger an exponential customer memory penalty, suppressing demand in subsequent steps.
-2. **Non-Stationary Demand**: Market conditions change over time following a cyclical wave, simulating seasonal patterns.
-3. **Inventory Penalty Bounds**: Includes holding and high stockout penalties, forcing agents to balance high short-term profits against long-term inventory depletion risks.
+- PPO continuous-control pricing optimization
+- DQN discrete pricing baseline
+- Non-stationary market simulation
+- Customer trust and memory dynamics
+- Inventory-aware reward shaping
+- Experiment tracking and telemetry
+- FastAPI monitoring and inference APIs
+- React analytics dashboard
+- PPO vs DQN convergence visualization
+- Multi-baseline evaluation framework
+- Reproducible training configuration
+- Artifact and metadata versioning
 
 ---
 
-## 📊 The Reward Function
+# Environment Design
 
-The scalar reward function balances long-term health metrics alongside instant transaction revenue:
+The marketplace environment is intentionally designed to challenge static optimization techniques.
 
-$$R_t = \text{Revenue}_t - \lambda_1 \cdot \text{Stockout}_t - \lambda_2 \cdot \text{Overpricing}_t - \lambda_3 \cdot \text{Volatility}_t + \lambda_4 \cdot \text{Retention}_t$$
+The simulator models:
+
+- cyclical demand shifts,
+- customer trust degradation,
+- inventory depletion,
+- stochastic demand noise,
+- volatility penalties,
+- and long-horizon pricing tradeoffs.
+
+The environment behaves as a partially non-stationary sequential decision system.
+
+---
+
+# State Representation
+
+The environment state vector is:
+
+```text
+[
+    normalized_price,
+    previous_demand,
+    older_demand,
+    normalized_inventory,
+    normalized_timestep
+]
+````
+
+This formulation allows agents to:
+
+* estimate short-term demand momentum,
+* reason about inventory depletion,
+* adapt to temporal market regimes,
+* and learn long-horizon pricing strategies.
+
+---
+
+# Reward Function
+
+The reward function balances:
+
+* revenue maximization,
+* customer retention,
+* inventory sustainability,
+* and pricing stability.
+
+R_t = Revenue_t - \lambda_1 Stockout_t - \lambda_2 Overpricing_t - \lambda_3 Volatility_t + \lambda_4 Retention_t
 
 Where:
-* **Revenue**: $\text{Actual Sales} \times \text{Price}$
-* **Stockout Penalty**: Penalizes missed demand when customer orders exceed remaining inventory.
-* **Overpricing Penalty**: Penalizes pricing far above historical market means.
-* **Volatility Penalty**: Restricts price adjustments from step to step, ensuring market stability.
-* **Retention Reward**: Incentive applied when prices fall below the historical rolling mean.
+
+* revenue rewards profitable transactions,
+* stockout penalties discourage inventory exhaustion,
+* volatility penalties stabilize pricing,
+* retention incentives preserve customer trust.
 
 ---
 
-## 📂 System Architecture
+# Project Structure
 
 ```text
 dynamic-pricing-rl/
 │
-├── env/
-│   └── pricing_env.py          # Non-stationary marketplace simulation environment
-│
 ├── agents/
-│   ├── ppo_agent.py            # Continuous Actor-Critic PPO implementation
-│   └── dqn_agent.py            # Discrete Deep Q-Network implementation
-│
-├── baselines/
-│   ├── fixed.py                # Static price optimization target
-│   ├── rule_based.py           # Inventory depletion velocity adjustments
-│   ├── demand_model.py         # Analytical linear function maximum solver
-│   ├── moving_avg.py           # Reactive trend-following pricing 
-│   └── bandit.py               # Epsilon-greedy Contextual Bandit tracking pool
-│
-├── training/
-│   ├── train.py                # End-to-end training loops for PPO and DQN
-│   └── evaluate.py             # Performance comparison suite across all models
-│
-├── utils/
-│   ├── metrics.py              # Financial/operational telemetry calculation
-│   └── plots.py                # Visual analysis generation engine
+│   ├── ppo_agent.py
+│   └── dqn_agent.py
 │
 ├── api/
-│   └── app.py                  # FastAPI implementation configured with CORS
+│   └── app.py
 │
-├── frontend/                   # Modern React + TypeScript Dashboard
-│   ├── src/
-│   │   ├── App.tsx             # Interactive layout with custom reactive SVG charts
-│   │   └── main.tsx            # Application mounting node
-│   ├── index.html
-│   ├── package.json
-│   └── tsconfig.json
+├── artifacts/
+│   ├── history/
+│   ├── metadata/
+│   ├── models/
+│   └── plots/
+│
+├── baselines/
+│   ├── bandit.py
+│   ├── demand_model.py
+│   ├── fixed.py
+│   ├── moving_avg.py
+│   └── rule_based.py
 │
 ├── configs/
-│   └── config.yaml             # Single source of truth hyperparameter file
+│   └── config.yaml
 │
-├── artifacts/                  # Local binary serialization targets
-│   ├── models/                 # Saved PyTorch checkpoints (*.pt)
-│   ├── plots/                  # Comparative performance visual charts (*.png)
-│   └── evaluation_summary.json # Evaluation dataset generated by evaluate.py
+├── env/
+│   └── pricing_env.py
 │
 ├── experiments/
-│   └── results.csv             # Historical experiment training ledger
+│   └── results.csv
 │
-├── .gitignore                  # Combined environment security exclusions
-└── requirements.txt            # Python dependencies index
+├── frontend/
+│
+├── training/
+│   ├── evaluate.py
+│   └── train.py
+│
+├── utils/
+│   ├── metrics.py
+│   └── plots.py
+│
+└── requirements.txt
 ```
 
 ---
 
-## 🛠️ Setup & Installation
+# Installation
 
-### 1. Backend & Python Setup
-Ensure you have activated your virtual environment inside your root folder:
+## Backend Setup
 
 ```bash
-# Install required Python dependencies
 pip install -r requirements.txt
+```
 
-# Run the training script to train the PPO and DQN agents
+---
+
+# Training
+
+Train PPO and DQN agents:
+
+```bash
 python training/train.py
+```
 
-# Run the evaluation script to compile baseline datasets and generate plots
+Artifacts generated:
+
+* trained checkpoints,
+* experiment logs,
+* telemetry history,
+* metadata snapshots.
+
+---
+
+# Evaluation
+
+Run the evaluation suite:
+
+```bash
 python training/evaluate.py
+```
 
-# Launch the FastAPI server engine
+Outputs:
+
+* PPO vs DQN comparison,
+* baseline benchmarking,
+* inventory analytics,
+* convergence plots,
+* operational telemetry.
+
+---
+
+# FastAPI Backend
+
+Launch the backend service:
+
+```bash
 uvicorn api.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### 2. Frontend & React Setup
-Open a separate terminal window, navigate to the `frontend` workspace folder, and start the development server:
+---
+
+# Frontend Dashboard
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-Open the output local address (typically `http://localhost:5173`) in your web browser.
 
 ---
 
-## ⚡ API Endpoint Blueprint
+# Monitoring & Telemetry APIs
 
-The FastAPI application acts as the orchestration layer between models and client interfaces:
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/price` | Receives a normalized state vector $[P_t, D_{t-1}, D_{t-2}, I_t, T_t]$ and returns the optimal inference price for the selected model. |
-| `POST` | `/simulate` | Runs a multi-step marketplace sequence directly on the environment and returns pricing traces and revenue totals. |
-| `GET` | `/metrics` | Fetches the saved global comparison JSON data compiled by the evaluation suite. |
+| Endpoint            | Description                       |
+| ------------------- | --------------------------------- |
+| `/health`           | System health monitoring          |
+| `/price`            | Real-time RL pricing inference    |
+| `/simulate`         | Multi-step environment simulation |
+| `/metrics`          | Evaluation metrics                |
+| `/compare`          | PPO vs baseline analytics         |
+| `/training-history` | Reward convergence telemetry      |
+| `/model-info`       | Metadata and configuration        |
+| `/telemetry`        | Runtime operational telemetry     |
+| `/experiment-log`   | Historical experiment logs        |
 
 ---
 
-## 🛡️ Fallback Management Matrix
+# Experiment Tracking
 
-To maintain system stability in highly volatile markets, the pipeline uses a rule-based safety fallback engine:
+The platform automatically tracks:
 
-* **Inventory Protection Mode**: If available stock drops below **20%**, the platform overrides model decisions and engages a rule-based safety mechanism. This forces prices up to maximize unit revenue and prevent complete stockouts.
-* **Analytical Grounding**: If the model output falls outside of reasonable economic ranges, prices fallback to the static values calculated by the closed-form **Demand Optimization Engine**.
+* rewards,
+* revenues,
+* volatility,
+* inventory utilization,
+* model metadata,
+* hyperparameters,
+* convergence telemetry,
+* timestamps,
+* experiment identifiers.
+
+All telemetry is stored locally for reproducibility and analytics.
+
+---
+
+# Reproducibility
+
+The system enforces deterministic execution through:
+
+* NumPy seeding,
+* PyTorch seeding,
+* CUDA deterministic settings,
+* centralized YAML configuration.
+
+---
+
+# RL Baselines
+
+The project evaluates RL against:
+
+* Fixed Pricing
+* Rule-Based Pricing
+* Demand Optimization
+* Moving Average Pricing
+* Contextual Bandit Pricing
+
+This demonstrates the advantage of RL under:
+
+* non-stationary demand,
+* long-term inventory reasoning,
+* and adaptive customer behavior.
+
+---
+
+# Dashboard Features
+
+The frontend dashboard provides:
+
+* PPO vs DQN convergence analytics,
+* inventory trajectory visualization,
+* customer trust monitoring,
+* pricing trajectory analysis,
+* RL telemetry panels,
+* operational KPI tracking,
+* live simulation execution.
+
+---
+
+# Deployment Philosophy
+
+The platform is designed as an operational RL analytics system rather than a standalone academic notebook.
+
+The architecture separates:
+
+* training,
+* inference,
+* monitoring,
+* telemetry,
+* evaluation,
+* and visualization.
+
+This structure aligns with modern RL deployment workflows used in production AI systems.
+
+---
+
+# Sustainability & SDG Alignment
+
+This project aligns with:
+
+* SDG 9 (Industry, Innovation and Infrastructure)
+* SDG 12 (Responsible Consumption and Production)
+
+by:
+
+* improving inventory efficiency,
+* reducing wasteful stockouts,
+* stabilizing pricing volatility,
+* and enabling data-driven operational optimization.
+
+```
+```
