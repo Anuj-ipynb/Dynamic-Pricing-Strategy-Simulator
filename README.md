@@ -1,138 +1,211 @@
-# Dynamic Pricing Strategy Simulator Using Reinforcement Learning
+<div align="center">
 
-A production-oriented reinforcement learning framework for optimizing dynamic pricing decisions in non-stationary marketplace environments. The platform compares deep RL approaches against multiple analytical and rule-based baselines while exposing full telemetry, experiment tracking, monitoring APIs, and operational analytics dashboards.
+```
+██████╗ ██╗   ██╗███╗   ██╗ █████╗ ███╗   ███╗██╗ ██████╗
+██╔══██╗╚██╗ ██╔╝████╗  ██║██╔══██╗████╗ ████║██║██╔════╝
+██║  ██║ ╚████╔╝ ██╔██╗ ██║███████║██╔████╔██║██║██║     
+██║  ██║  ╚██╔╝  ██║╚██╗██║██╔══██║██║╚██╔╝██║██║██║     
+██████╔╝   ██║   ██║ ╚████║██║  ██║██║ ╚═╝ ██║██║╚██████╗
+╚═════╝    ╚═╝   ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝ ╚═════╝
 
----
+██████╗ ██████╗ ██╗ ██████╗██╗███╗   ██╗ ██████╗
+██╔══██╗██╔══██╗██║██╔════╝██║████╗  ██║██╔════╝
+██████╔╝██████╔╝██║██║     ██║██╔██╗ ██║██║  ███╗
+██╔═══╝ ██╔══██╗██║██║     ██║██║╚██╗██║██║   ██║
+██║     ██║  ██║██║╚██████╗██║██║ ╚████║╚██████╔╝
+╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝╚═╝╚═╝  ╚═══╝ ╚═════╝
+```
 
-# Core Features
+### Deep Reinforcement Learning · Non-Stationary Market Optimization · Production MLOps
 
-- PPO continuous-control pricing optimization
-- DQN discrete pricing baseline
-- Non-stationary market simulation
-- Customer trust and memory dynamics
-- Inventory-aware reward shaping
-- Experiment tracking and telemetry
-- FastAPI monitoring and inference APIs
-- React analytics dashboard
-- PPO vs DQN convergence visualization
-- Multi-baseline evaluation framework
-- Reproducible training configuration
-- Artifact and metadata versioning
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
+[![SDG 9](https://img.shields.io/badge/SDG-9%20Innovation-F36D25?style=flat-square)](https://sdgs.un.org/goals/goal9)
+[![SDG 12](https://img.shields.io/badge/SDG-12%20Responsible%20Consumption-CF8D2A?style=flat-square)](https://sdgs.un.org/goals/goal12)
 
----
-
-# Environment Design
-
-The marketplace environment is intentionally designed to challenge static optimization techniques.
-
-The simulator models:
-
-- cyclical demand shifts,
-- customer trust degradation,
-- inventory depletion,
-- stochastic demand noise,
-- volatility penalties,
-- and long-horizon pricing tradeoffs.
-
-The environment behaves as a partially non-stationary sequential decision system.
+</div>
 
 ---
 
-# State Representation
+## What Is This?
 
-The environment state vector is:
+**Dynamic Pricing RL** is a production-oriented reinforcement learning framework for optimizing pricing decisions in non-stationary marketplace environments. Static pricing rules fail when demand shifts, customer trust erodes, and inventory depletes — this platform uses deep RL to adapt in real time.
 
-```text
-[
-    normalized_price,
-    previous_demand,
-    older_demand,
-    normalized_inventory,
-    normalized_timestep
-]
-````
+The system trains **PPO** (continuous control) and **DQN** (discrete action) agents against a richly simulated market, benchmarks them against five analytical baselines, and exposes full telemetry, experiment tracking, monitoring APIs, and a live React analytics dashboard.
 
-This formulation allows agents to:
-
-* estimate short-term demand momentum,
-* reason about inventory depletion,
-* adapt to temporal market regimes,
-* and learn long-horizon pricing strategies.
+> Built as an operational RL analytics system — not an academic notebook.  
+> Training, inference, monitoring, telemetry, evaluation, and visualization are fully separated.
 
 ---
 
-# Reward Function
+## Why Reinforcement Learning?
 
-The reward function balances:
+Classical pricing strategies fail under:
 
-* revenue maximization,
-* customer retention,
-* inventory sustainability,
-* and pricing stability.
-
-R_t = Revenue_t - \lambda_1 Stockout_t - \lambda_2 Overpricing_t - \lambda_3 Volatility_t + \lambda_4 Retention_t
-
-Where:
-
-* revenue rewards profitable transactions,
-* stockout penalties discourage inventory exhaustion,
-* volatility penalties stabilize pricing,
-* retention incentives preserve customer trust.
+| Challenge | Classical Approach | RL Approach |
+|---|---|---|
+| Cyclical demand shifts | Recalibrate manually | Adapts online |
+| Customer trust degradation | Ignored | Modeled in reward |
+| Inventory depletion | Threshold rules | Inventory-aware reward shaping |
+| Stochastic demand noise | Averaged out | Learned via exploration |
+| Long-horizon tradeoffs | Myopic optimization | Discounted return maximization |
 
 ---
 
-# Project Structure
+## Architecture Overview
 
-```text
-dynamic-pricing-rl/
-│
-├── agents/
-│   ├── ppo_agent.py
-│   └── dqn_agent.py
-│
-├── api/
-│   └── app.py
-│
-├── artifacts/
-│   ├── history/
-│   ├── metadata/
-│   ├── models/
-│   └── plots/
-│
-├── baselines/
-│   ├── bandit.py
-│   ├── demand_model.py
-│   ├── fixed.py
-│   ├── moving_avg.py
-│   └── rule_based.py
-│
-├── configs/
-│   └── config.yaml
-│
-├── env/
-│   └── pricing_env.py
-│
-├── experiments/
-│   └── results.csv
-│
-├── frontend/
-│
-├── training/
-│   ├── evaluate.py
-│   └── train.py
-│
-├── utils/
-│   ├── metrics.py
-│   └── plots.py
-│
-└── requirements.txt
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       Dynamic Pricing RL Platform                        │
+├──────────────┬─────────────────┬──────────────────┬────────────────────┤
+│  ENVIRONMENT │     AGENTS      │    BASELINES     │    OPERATIONS      │
+│              │                 │                  │                    │
+│ pricing_env  │  PPO Agent      │  Fixed Pricing   │  FastAPI Backend   │
+│              │  (continuous)   │  Rule-Based      │  9 REST endpoints  │
+│ Non-stationary│               │  Demand Model    │                    │
+│ market sim   │  DQN Agent      │  Moving Average  │  React Dashboard   │
+│              │  (discrete)     │  Bandit          │  Live analytics    │
+│ State: 5-dim │                 │                  │                    │
+│ Reward: R_t  │  Shared config  │  Benchmarking    │  Experiment Logs   │
+│ with 4 terms │  via YAML       │  suite           │  Artifact store    │
+└──────────────┴─────────────────┴──────────────────┴────────────────────┘
+         │               │                │                  │
+         └───────────────┴────────────────┴──────────────────┘
+                              training/train.py
+                              training/evaluate.py
 ```
 
 ---
 
-# Installation
+## Environment Design
 
-## Backend Setup
+The marketplace environment is a **partially non-stationary sequential decision system** — intentionally designed to defeat static optimization.
+
+### State Vector (5-dimensional)
+
+```
+s_t = [
+    normalized_price,       ← current price relative to bounds
+    previous_demand,        ← demand at t-1 (momentum signal)
+    older_demand,           ← demand at t-2 (trend signal)
+    normalized_inventory,   ← fraction of stock remaining
+    normalized_timestep     ← temporal market regime signal
+]
+```
+
+This lets agents estimate demand momentum, reason about depletion risk, detect temporal market regimes, and learn long-horizon tradeoffs.
+
+### Market Dynamics Simulated
+
+- Cyclical demand shifts (seasonal/periodic patterns)
+- Customer trust degradation from aggressive pricing
+- Inventory depletion with stockout risk
+- Stochastic demand noise (ε ~ N(0, σ))
+- Volatility penalties for erratic pricing
+
+---
+
+## Reward Function
+
+$$R_t = \text{Revenue}_t - \lambda_1 \cdot \text{Stockout}_t - \lambda_2 \cdot \text{Overpricing}_t - \lambda_3 \cdot \text{Volatility}_t + \lambda_4 \cdot \text{Retention}_t$$
+
+| Term | Role |
+|---|---|
+| Revenue | Reward profitable transactions |
+| Stockout penalty (λ₁) | Discourage inventory exhaustion |
+| Overpricing penalty (λ₂) | Prevent trust destruction |
+| Volatility penalty (λ₃) | Stabilize pricing trajectories |
+| Retention incentive (λ₄) | Preserve long-run customer base |
+
+---
+
+## Agents
+
+### PPO — Proximal Policy Optimization
+- Continuous action space (price as a real-valued output)
+- Actor-Critic architecture with clipped surrogate objective
+- Best suited for smooth, high-dimensional pricing manifolds
+- Gradient clipping + entropy regularization for stability
+
+### DQN — Deep Q-Network
+- Discrete action space (bucketed price levels)
+- Experience replay + target network stabilization
+- ε-greedy exploration with decay schedule
+- Baseline comparator against PPO continuous control
+
+---
+
+## Baselines
+
+The RL agents are benchmarked against five analytical strategies:
+
+| Baseline | Strategy |
+|---|---|
+| **Fixed Pricing** | Constant price throughout horizon |
+| **Rule-Based** | Heuristic price rules (demand thresholds) |
+| **Demand Optimization** | Model-based price from demand curve |
+| **Moving Average** | Price tracks rolling demand average |
+| **Contextual Bandit** | One-step exploration, no memory |
+
+This demonstrates RL's advantage under non-stationary demand, long-term inventory reasoning, and adaptive customer behavior — where reactive and model-free baselines degrade.
+
+---
+
+## Project Structure
+
+```
+dynamic-pricing-rl/
+│
+├── 🤖 agents/
+│   ├── ppo_agent.py              ← PPO continuous-control agent
+│   └── dqn_agent.py              ← DQN discrete-action agent
+│
+├── 🌐 api/
+│   └── app.py                    ← FastAPI backend (9 endpoints)
+│
+├── 📦 artifacts/
+│   ├── history/                  ← Training telemetry logs
+│   ├── metadata/                 ← Hyperparameters + run info
+│   ├── models/                   ← Saved agent checkpoints
+│   └── plots/                    ← Generated evaluation figures
+│
+├── 📊 baselines/
+│   ├── bandit.py                 ← Contextual bandit strategy
+│   ├── demand_model.py           ← Demand-curve optimizer
+│   ├── fixed.py                  ← Fixed price baseline
+│   ├── moving_avg.py             ← Moving average baseline
+│   └── rule_based.py             ← Heuristic rule baseline
+│
+├── ⚙️ configs/
+│   └── config.yaml               ← Centralized experiment config
+│
+├── 🏪 env/
+│   └── pricing_env.py            ← Non-stationary market simulator
+│
+├── 🧪 experiments/
+│   └── results.csv               ← Tracked experiment outcomes
+│
+├── 🖥️ frontend/                  ← React analytics dashboard
+│
+├── 🏋️ training/
+│   ├── train.py                  ← PPO + DQN training loop
+│   └── evaluate.py               ← Full evaluation + benchmarking
+│
+├── 🔧 utils/
+│   ├── metrics.py                ← Evaluation metric utilities
+│   └── plots.py                  ← Visualization helpers
+│
+└── 📋 requirements.txt
+```
+
+---
+
+## Quickstart
+
+### 1 — Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -140,26 +213,28 @@ pip install -r requirements.txt
 
 ---
 
-# Training
+### 2 — Configure the Experiment
 
-Train PPO and DQN agents:
+Edit `configs/config.yaml` to set hyperparameters, seeds, episode length, reward weights (λ₁–λ₄), and agent-specific settings. All training and evaluation scripts read from this single file.
+
+---
+
+### 3 — Train Agents
 
 ```bash
 python training/train.py
 ```
 
-Artifacts generated:
+This trains both PPO and DQN agents. Artifacts generated:
 
-* trained checkpoints,
-* experiment logs,
-* telemetry history,
-* metadata snapshots.
+- Trained model checkpoints → `artifacts/models/`
+- Reward convergence telemetry → `artifacts/history/`
+- Hyperparameter metadata → `artifacts/metadata/`
+- Experiment log entry → `experiments/results.csv`
 
 ---
 
-# Evaluation
-
-Run the evaluation suite:
+### 4 — Evaluate & Benchmark
 
 ```bash
 python training/evaluate.py
@@ -167,25 +242,26 @@ python training/evaluate.py
 
 Outputs:
 
-* PPO vs DQN comparison,
-* baseline benchmarking,
-* inventory analytics,
-* convergence plots,
-* operational telemetry.
+- PPO vs DQN comparison
+- All 5 baseline benchmarks
+- Inventory trajectory analytics
+- Customer trust monitoring
+- Convergence plots → `artifacts/plots/`
+- Operational telemetry summary
 
 ---
 
-# FastAPI Backend
-
-Launch the backend service:
+### 5 — Launch FastAPI Backend
 
 ```bash
 uvicorn api.app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+API available at **http://localhost:8000** · Swagger docs at **http://localhost:8000/docs**
+
 ---
 
-# Frontend Dashboard
+### 6 — Launch React Dashboard
 
 ```bash
 cd frontend
@@ -193,115 +269,110 @@ npm install
 npm run dev
 ```
 
----
-
-# Monitoring & Telemetry APIs
-
-| Endpoint            | Description                       |
-| ------------------- | --------------------------------- |
-| `/health`           | System health monitoring          |
-| `/price`            | Real-time RL pricing inference    |
-| `/simulate`         | Multi-step environment simulation |
-| `/metrics`          | Evaluation metrics                |
-| `/compare`          | PPO vs baseline analytics         |
-| `/training-history` | Reward convergence telemetry      |
-| `/model-info`       | Metadata and configuration        |
-| `/telemetry`        | Runtime operational telemetry     |
-| `/experiment-log`   | Historical experiment logs        |
+Dashboard available at **http://localhost:5173**
 
 ---
 
-# Experiment Tracking
+## API Reference
 
-The platform automatically tracks:
-
-* rewards,
-* revenues,
-* volatility,
-* inventory utilization,
-* model metadata,
-* hyperparameters,
-* convergence telemetry,
-* timestamps,
-* experiment identifiers.
-
-All telemetry is stored locally for reproducibility and analytics.
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | System health monitoring |
+| `POST` | `/price` | Real-time RL pricing inference |
+| `POST` | `/simulate` | Multi-step environment simulation |
+| `GET` | `/metrics` | Evaluation metrics snapshot |
+| `GET` | `/compare` | PPO vs baseline analytics |
+| `GET` | `/training-history` | Reward convergence telemetry |
+| `GET` | `/model-info` | Metadata and configuration |
+| `GET` | `/telemetry` | Runtime operational telemetry |
+| `GET` | `/experiment-log` | Historical experiment logs |
 
 ---
 
-# Reproducibility
+## Dashboard Features
 
-The system enforces deterministic execution through:
-
-* NumPy seeding,
-* PyTorch seeding,
-* CUDA deterministic settings,
-* centralized YAML configuration.
-
----
-
-# RL Baselines
-
-The project evaluates RL against:
-
-* Fixed Pricing
-* Rule-Based Pricing
-* Demand Optimization
-* Moving Average Pricing
-* Contextual Bandit Pricing
-
-This demonstrates the advantage of RL under:
-
-* non-stationary demand,
-* long-term inventory reasoning,
-* and adaptive customer behavior.
-
----
-
-# Dashboard Features
-
-The frontend dashboard provides:
-
-* PPO vs DQN convergence analytics,
-* inventory trajectory visualization,
-* customer trust monitoring,
-* pricing trajectory analysis,
-* RL telemetry panels,
-* operational KPI tracking,
-* live simulation execution.
-
----
-
-# Deployment Philosophy
-
-The platform is designed as an operational RL analytics system rather than a standalone academic notebook.
-
-The architecture separates:
-
-* training,
-* inference,
-* monitoring,
-* telemetry,
-* evaluation,
-* and visualization.
-
-This structure aligns with modern RL deployment workflows used in production AI systems.
-
----
-
-# Sustainability & SDG Alignment
-
-This project aligns with:
-
-* SDG 9 (Industry, Innovation and Infrastructure)
-* SDG 12 (Responsible Consumption and Production)
-
-by:
-
-* improving inventory efficiency,
-* reducing wasteful stockouts,
-* stabilizing pricing volatility,
-* and enabling data-driven operational optimization.
+The React frontend provides live analytics across six panels:
 
 ```
+┌─────────────────────┬─────────────────────┐
+│  PPO vs DQN         │  Inventory           │
+│  Convergence        │  Trajectory          │
+│  (reward curves)    │  (depletion risk)    │
+├─────────────────────┼─────────────────────┤
+│  Customer Trust     │  Pricing             │
+│  Monitoring         │  Trajectory          │
+│  (retention score)  │  (stability view)    │
+├─────────────────────┼─────────────────────┤
+│  RL Telemetry       │  Live Simulation     │
+│  (KPI panels)       │  (run on demand)     │
+└─────────────────────┴─────────────────────┘
 ```
+
+---
+
+## Experiment Tracking
+
+Every training run automatically records:
+
+| Category | Fields Tracked |
+|---|---|
+| Performance | Reward, revenue, volatility score |
+| Inventory | Utilization rate, stockout events |
+| Agent | Hyperparameters, architecture config |
+| Convergence | Reward curve, episode-level telemetry |
+| Run metadata | Timestamp, experiment ID, seed |
+
+All telemetry is stored locally in `artifacts/` and `experiments/results.csv` for full reproducibility — no external tracking server required.
+
+---
+
+## Reproducibility
+
+The system enforces deterministic execution end-to-end:
+
+```python
+np.random.seed(config.seed)           # NumPy global seed
+torch.manual_seed(config.seed)        # PyTorch CPU seed
+torch.cuda.manual_seed(config.seed)   # PyTorch CUDA seed
+torch.backends.cudnn.deterministic = True  # CUDA determinism
+```
+
+Every hyperparameter, reward weight, and environment parameter lives in `configs/config.yaml` — one file controls the entire experiment.
+
+---
+
+## SDG Alignment
+
+| Goal | Connection |
+|---|---|
+| **SDG 9** — Industry, Innovation & Infrastructure | Production RL deployment architecture for smart industrial pricing |
+| **SDG 12** — Responsible Consumption & Production | Reduces wasteful stockouts, curbs overpricing, stabilizes supply chains |
+
+---
+
+## Deployment Philosophy
+
+This platform deliberately separates concerns across independently deployable layers:
+
+```
+Training  ──►  Artifact Store  ──►  FastAPI Inference
+                    │
+                    ▼
+             Telemetry Store  ──►  React Dashboard
+                    │
+                    ▼
+             Experiment Log   ──►  Reproducibility Audit
+```
+
+This structure mirrors production RL deployment workflows used in real AI systems — not a monolithic notebook, but a composable operational stack.
+
+---
+
+<div align="center">
+
+**Dynamic Pricing Strategy Simulator**  
+Deep Reinforcement Learning · PPO & DQN · Non-Stationary Markets
+
+*Adapt. Optimize. Deploy.*
+
+</div>
