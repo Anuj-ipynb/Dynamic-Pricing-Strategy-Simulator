@@ -248,26 +248,34 @@ def compute_price(payload: PriceRequestSchema):
 # LIVE SIMULATION
 # =========================================================
 @app.post("/simulate")
-def run_simulation(
-    payload: SimulationRequestSchema
-):
+def run_simulation(payload: SimulationRequestSchema):
 
     env = DynamicPricingEnv()
 
     state = env.reset()
 
-    model_name = payload.model.lower()
-
-    pricing_trace = []
-    revenue_trace = []
-    inventory_trace = []
-    trust_trace = []
-
-    total_reward = 0.0
-
     done = False
+
     step = 0
 
+    model_name = payload.model.lower()
+
+    # =====================================================
+    # TRACES
+    # =====================================================
+    pricing_trace = []
+
+    revenue_trace = []
+
+    inventory_trace = []
+
+    trust_trace = []
+
+    reward_trace = []
+
+    # =====================================================
+    # LOOP
+    # =====================================================
     while not done and step < payload.steps:
 
         # -------------------------------------------------
@@ -279,7 +287,7 @@ def run_simulation(
 
                 raise HTTPException(
                     status_code=500,
-                    detail="PPO model unavailable"
+                    detail="PPO not loaded"
                 )
 
             action, _, _ = ppo_model.select_action(
@@ -295,7 +303,7 @@ def run_simulation(
 
                 raise HTTPException(
                     status_code=500,
-                    detail="DQN model unavailable"
+                    detail="DQN not available"
                 )
 
             action, _ = dqn_model.select_action(
@@ -303,9 +311,6 @@ def run_simulation(
                 eval_mode=True
             )
 
-        # -------------------------------------------------
-        # INVALID
-        # -------------------------------------------------
         else:
 
             raise HTTPException(
@@ -313,10 +318,14 @@ def run_simulation(
                 detail="Invalid model"
             )
 
-        next_state, reward, done, info = env.step(
-            action
-        )
+        # -------------------------------------------------
+        # ENV STEP
+        # -------------------------------------------------
+        state, reward, done, info = env.step(action)
 
+        # -------------------------------------------------
+        # STORE
+        # -------------------------------------------------
         pricing_trace.append(
             float(info["price"])
         )
@@ -333,36 +342,43 @@ def run_simulation(
             float(info["trust"])
         )
 
-        total_reward += reward
-
-        state = next_state
+        reward_trace.append(
+            float(reward)
+        )
 
         step += 1
 
+    # =====================================================
+    # METRICS
+    # =====================================================
+    total_revenue = float(
+        np.sum(revenue_trace)
+    )
+
+    total_reward = float(
+        np.sum(reward_trace)
+    )
+
+    avg_price = float(
+        np.mean(pricing_trace)
+    )
+
+    price_volatility = float(
+        np.std(pricing_trace)
+    )
+
+    # =====================================================
+    # RESPONSE
+    # =====================================================
     return {
 
-        "model": payload.model.upper(),
+        "total_revenue": total_revenue,
 
-        "steps_executed": step,
+        "total_reward": total_reward,
 
-        "total_reward": float(total_reward),
+        "avg_price": avg_price,
 
-        "total_revenue": float(
-            np.sum(revenue_trace)
-        ),
-
-        "avg_price": float(
-            np.mean(pricing_trace)
-        ),
-
-        "price_volatility": float(
-            np.std(pricing_trace)
-        ),
-
-        "final_inventory": float(
-            inventory_trace[-1]
-            if inventory_trace else 0.0
-        ),
+        "price_volatility": price_volatility,
 
         "pricing_trace": pricing_trace,
 
@@ -370,9 +386,10 @@ def run_simulation(
 
         "inventory_trace": inventory_trace,
 
-        "trust_trace": trust_trace
-    }
+        "trust_trace": trust_trace,
 
+        "steps_executed": step
+    }
 
 # =========================================================
 # GLOBAL METRICS
@@ -532,12 +549,18 @@ def fetch_experiment_logs():
     df = pd.read_csv(csv_path)
 
     latest_rows = (
-        df.sort_values("episode")
-        .tail(50)
+    df.sort_values("episode")
+    .tail(50)
+)
+
+# Replace NaN/inf values
+    latest_rows = latest_rows.replace(
+        [np.nan, np.inf, -np.inf],
+    None
     )
 
     return latest_rows.to_dict(
-        orient="records"
+    orient="records"
     )
 
 

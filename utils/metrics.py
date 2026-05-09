@@ -96,8 +96,10 @@ def calculate_performance_metrics(history_dict):
         df["sales"] * df["price"]
     )
 
-    reward_stability = (
-        1.0 / (1.0 + np.std(step_rewards))
+    reward_std = np.std(step_rewards)
+
+    reward_stability = float(
+    np.exp(-reward_std / 1000.0)
     )
 
     # -----------------------------------------------------

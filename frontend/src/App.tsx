@@ -523,7 +523,7 @@ export default function App() {
                     <Line
                       type="monotone"
                       dataKey="ppo"
-                      stroke="#111827"
+                      stroke="#2563eb"
                       strokeWidth={3}
                       dot={false}
                     />
@@ -531,7 +531,7 @@ export default function App() {
                     <Line
                       type="monotone"
                       dataKey="dqn"
-                      stroke="#6b7280"
+                      stroke="#dc2626"
                       strokeWidth={3}
                       dot={false}
                     />
