@@ -9,3 +9,5 @@ matplotlib
 seaborn
 pydantic
 requests
+mlflow
+cloudpickle

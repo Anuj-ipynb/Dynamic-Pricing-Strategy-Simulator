@@ -42,6 +42,8 @@ def generate_evaluation_plots(
         for m in models
     ]
 
+    saved_plots = []
+
     # =====================================================
     # REVENUE COMPARISON
     # =====================================================
@@ -57,12 +59,18 @@ def generate_evaluation_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "revenue_comparison.png"
-        )
+    revenue_plot = os.path.join(
+        save_dir,
+        "revenue_comparison.png"
     )
+
+    plt.savefig(
+        revenue_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(revenue_plot)
 
     plt.close()
 
@@ -97,12 +105,18 @@ def generate_evaluation_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "stability_tradeoff.png"
-        )
+    stability_plot = os.path.join(
+        save_dir,
+        "stability_tradeoff.png"
     )
+
+    plt.savefig(
+        stability_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(stability_plot)
 
     plt.close()
 
@@ -121,12 +135,18 @@ def generate_evaluation_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "inventory_utilization.png"
-        )
+    inventory_plot = os.path.join(
+        save_dir,
+        "inventory_utilization.png"
     )
+
+    plt.savefig(
+        inventory_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(inventory_plot)
 
     plt.close()
 
@@ -145,12 +165,18 @@ def generate_evaluation_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "demand_fulfillment.png"
-        )
+    fulfillment_plot = os.path.join(
+        save_dir,
+        "demand_fulfillment.png"
     )
+
+    plt.savefig(
+        fulfillment_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(fulfillment_plot)
 
     plt.close()
 
@@ -169,14 +195,22 @@ def generate_evaluation_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "policy_smoothness.png"
-        )
+    smoothness_plot = os.path.join(
+        save_dir,
+        "policy_smoothness.png"
     )
 
+    plt.savefig(
+        smoothness_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(smoothness_plot)
+
     plt.close()
+
+    return saved_plots
 
 
 # =========================================================
@@ -190,7 +224,10 @@ def generate_training_history_plots(
     os.makedirs(save_dir, exist_ok=True)
 
     with open(history_path, "r") as f:
+
         history = json.load(f)
+
+    saved_plots = []
 
     # -----------------------------------------------------
     # PPO REWARDS
@@ -209,12 +246,18 @@ def generate_training_history_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "ppo_training_curve.png"
-        )
+    ppo_plot = os.path.join(
+        save_dir,
+        "ppo_training_curve.png"
     )
+
+    plt.savefig(
+        ppo_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(ppo_plot)
 
     plt.close()
 
@@ -235,12 +278,18 @@ def generate_training_history_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "dqn_training_curve.png"
-        )
+    dqn_plot = os.path.join(
+        save_dir,
+        "dqn_training_curve.png"
     )
+
+    plt.savefig(
+        dqn_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(dqn_plot)
 
     plt.close()
 
@@ -269,11 +318,19 @@ def generate_training_history_plots(
 
     plt.tight_layout()
 
-    plt.savefig(
-        os.path.join(
-            save_dir,
-            "ppo_vs_dqn_convergence.png"
-        )
+    convergence_plot = os.path.join(
+        save_dir,
+        "ppo_vs_dqn_convergence.png"
     )
 
+    plt.savefig(
+        convergence_plot,
+        dpi=300,
+        bbox_inches="tight"
+    )
+
+    saved_plots.append(convergence_plot)
+
     plt.close()
+
+    return saved_plots

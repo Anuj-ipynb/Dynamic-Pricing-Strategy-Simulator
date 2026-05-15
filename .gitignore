@@ -5,13 +5,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual Environments
+# =========================================================
+# VIRTUAL ENVIRONMENTS
+# =========================================================
 venv/
 .venv/
 env/
 ENV/
 
-# Python packaging
+# =========================================================
+# PYTHON PACKAGING
+# =========================================================
 build/
 dist/
 *.egg-info/
@@ -52,46 +56,46 @@ Thumbs.db
 # =========================================================
 frontend/node_modules/
 frontend/dist/
-
-# Vite cache
 frontend/.vite/
+
+# =========================================================
+# MLFLOW
+# =========================================================
+mlruns/
+mlartifacts/
+*.db
 
 # =========================================================
 # ARTIFACTS
 # =========================================================
 
-# Keep directory structure
-artifacts/*
-!artifacts/.gitkeep
-
-# Keep subdirectories tracked
-!artifacts/models/
-!artifacts/plots/
-!artifacts/history/
-!artifacts/metadata/
-
-# Ignore generated contents
-artifacts/models/*
-artifacts/plots/*
+# Ignore generated artifacts
 artifacts/history/*
+artifacts/plots/*
 artifacts/metadata/*
 
-# Keep folders alive
-!artifacts/models/.gitkeep
-!artifacts/plots/.gitkeep
+# Keep directories alive
 !artifacts/history/.gitkeep
+!artifacts/plots/.gitkeep
 !artifacts/metadata/.gitkeep
+
+# =========================================================
+# MODEL FILES
+# =========================================================
+
+# Ignore all model weights globally
+*.pt
+*.pth
+
+# BUT keep trained models inside artifacts/models
+!artifacts/models/
+!artifacts/models/*.pt
+!artifacts/models/*.pth
 
 # =========================================================
 # EXPERIMENT OUTPUTS
 # =========================================================
 experiments/results.csv
-
-# =========================================================
-# TRAINING OUTPUTS
-# =========================================================
-*.pt
-*.pth
 
 # =========================================================
 # GENERATED MEDIA
@@ -102,6 +106,9 @@ experiments/results.csv
 *.gif
 *.svg
 
+# Keep important report/demo plots if needed
+!artifacts/plots/*.png
+
 # =========================================================
 # CACHE
 # =========================================================
@@ -109,7 +116,18 @@ experiments/results.csv
 .pytest_cache/
 
 # =========================================================
-# MISC
+# TORCH / CUDA
+# =========================================================
+*.ckpt
+
+# =========================================================
+# TEMP FILES
 # =========================================================
 *.tmp
 *.temp
+
+# =========================================================
+# MISC
+# =========================================================
+coverage/
+htmlcov/

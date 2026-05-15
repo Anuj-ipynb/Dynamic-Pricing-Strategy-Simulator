@@ -1,0 +1,93 @@
+{
+    "PPO": {
+        "Total Revenue": 26105.761653229267,
+        "Avg Revenue per Step": 261.0576165322926,
+        "Total Sales Units": 338.72824104118496,
+        "Mean Applied Price": 76.96938370513915,
+        "Price Volatility (StdDev)": 1.5015539809313416,
+        "Reward Stability": 0.8654705706364257,
+        "Policy Smoothness": 0.4740878016890666,
+        "Final Terminal Inventory": 11.271758958815056,
+        "Inventory Utilization (%)": 96.77949744033855,
+        "Demand Fulfillment Rate (%)": 100.0,
+        "Revenue Efficiency": 77.07081523199734
+    },
+    "DQN": {
+        "Total Revenue": 23721.202189364183,
+        "Avg Revenue per Step": 354.0322901499765,
+        "Total Sales Units": 349.9999999999999,
+        "Mean Applied Price": 69.3766976934582,
+        "Price Volatility (StdDev)": 4.971908971389398,
+        "Reward Stability": 0.8574688551888814,
+        "Policy Smoothness": 0.4688757035849457,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 98.39880154675238,
+        "Revenue Efficiency": 67.7748632045409
+    },
+    "Fixed Pricing": {
+        "Total Revenue": 12250.000000000002,
+        "Avg Revenue per Step": 720.5882352941178,
+        "Total Sales Units": 350.0,
+        "Mean Applied Price": 35.0,
+        "Price Volatility (StdDev)": 0.0,
+        "Reward Stability": 0.8439946046226734,
+        "Policy Smoothness": 1.0,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 95.07680806111804,
+        "Revenue Efficiency": 34.99999990000001
+    },
+    "Rule-Based": {
+        "Total Revenue": 13155.267691348457,
+        "Avg Revenue per Step": 571.9681604934112,
+        "Total Sales Units": 350.0000000000001,
+        "Mean Applied Price": 51.521739130434774,
+        "Price Volatility (StdDev)": 22.983926330486206,
+        "Reward Stability": 0.8206700365541184,
+        "Policy Smoothness": 0.3283582089552239,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 99.9196253670873,
+        "Revenue Efficiency": 37.586479010748505
+    },
+    "Demand Optimization": {
+        "Total Revenue": 5833.333333333334,
+        "Avg Revenue per Step": 583.3333333333333,
+        "Total Sales Units": 349.99999999999994,
+        "Mean Applied Price": 16.666666666666664,
+        "Price Volatility (StdDev)": 3.744889033148481e-15,
+        "Reward Stability": 0.8889909882113065,
+        "Policy Smoothness": 1.0,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 97.11216257245164,
+        "Revenue Efficiency": 16.66666661904762
+    },
+    "Moving Average": {
+        "Total Revenue": 10634.085075064946,
+        "Avg Revenue per Step": 664.6303171915591,
+        "Total Sales Units": 350.0,
+        "Mean Applied Price": 30.394888401031494,
+        "Price Volatility (StdDev)": 1.3502913305405948,
+        "Reward Stability": 0.8325340591367809,
+        "Policy Smoothness": 0.39565551297915114,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 93.78749396824273,
+        "Revenue Efficiency": 30.383100127662424
+    },
+    "Contextual Bandit": {
+        "Total Revenue": 10031.602754933901,
+        "Avg Revenue per Step": 533.097967920418,
+        "Total Sales Units": 350.0,
+        "Mean Applied Price": 33.361677611548046,
+        "Price Volatility (StdDev)": 13.17972631734573,
+        "Reward Stability": 0.8420925185319799,
+        "Policy Smoothness": 0.15526298739087024,
+        "Final Terminal Inventory": 0.0,
+        "Inventory Utilization (%)": 100.0,
+        "Demand Fulfillment Rate (%)": 97.2302574415816,
+        "Revenue Efficiency": 28.661722075063373
+    }
+}
